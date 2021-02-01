@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:conversor_de_gif/UI/Gif_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:share/share.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -18,7 +20,7 @@ class _HomePageState extends State<HomePage> {
   Future<Map> _getSearch() async {
     http.Response response;
 
-    if (_search == null) {
+    if (_search == null  || _search.isEmpty) {
       response = await http.get(
           "https://api.giphy.com/v1/gifs/trending?api_key=YbTJbDIB26W4W" +
               "mBkEox1xyO3UsWYU4sJ&limit=26&rating=g");
@@ -114,12 +116,14 @@ class _HomePageState extends State<HomePage> {
         mainAxisSpacing: 10,
       ),
       itemBuilder: (context, index) {
-        if (_search == null || index < snapshot.data["data"].length)
+        if (_search == null ||  index < snapshot.data["data"].length )
           return GestureDetector(
-            child: Image.network(
-              snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+            child: FadeInImage.memoryNetwork(
+              placeholder: kTransparentImage,
+              image: snapshot.data["data"][index]["images"]["fixed_height"]
+                  ["url"],
               height: 300,
-              fit: BoxFit.cover,
+              fit:BoxFit.cover,
             ),
             onTap: () {
               Navigator.push(
@@ -130,6 +134,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               );
+            },
+            onLongPress: () {
+              Share.share(snapshot.data["data"][index]["images"]["fixed_height"]
+                  ["url"]);
             },
           );
         else {
